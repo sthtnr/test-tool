@@ -1,0 +1,9 @@
+web:
+  name: hogehoge
+  image: fugafuga
+
+
+githubRepo: defaultRepo
+githubBranch: defaultBranch
+githubCommit: defaultCommit
+

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.githubRepo }}/{{ .Values.githubBranch }}/{{ .Values.githubCommit }}
+  labels:
+    {{ template "mychart.chart" . }}
+    app: {{ .Values.web.name }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.web.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.web.name }}
+    spec:
+      containers:
+      - name: {{ .Values.web.name }}
+      image: {{ .Values.web.image }}
+      ports:
+      - containerPort: 80
