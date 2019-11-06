@@ -15,9 +15,7 @@ jobs:
         env:
           PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
           APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_AUTH}}
-          ID: ${{GITHUB_REF}}-${{GITHUB_SHA}}
           IMAGE: gcr.io/test-tool-257606/build-app
-          URL: ${{GITHUB_REF}}-${{GITHUB_SHA}}-test2l.com
         with:
           args: helm init --service-account tiller --wait --upgrade && \
-                helm upgrade --install --set web.name="app-${ID}" --set web.image="${IMAGE}" --set web.host="${URL}" --wait --force app-${ID} ./mychart
+                helm upgrade --install --set web.name="app-${{GITHUB_REF}}-${{GITHUB_SHA}}" --set web.image="${IMAGE}" --set web.host="${{GITHUB_REF}}-${{GITHUB_SHA}}-test2l.com" --wait --force app-${{GITHUB_REF}}-${{GITHUB_SHA}} ./mychart
