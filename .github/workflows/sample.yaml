@@ -1,16 +1,32 @@
 name: CI
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - 'test-githubactions'
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v1
-
-      - name: Setup Google Cloud
-        uses: actions-hub/gcloud@master
+      - uses: actions-hub/gcloud@master
         env:
           PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
           APPLICATION_CREDENTIALS: ${{secrets.GCLOUD_AUTH}}
-
-      - name: Build application
+          ID: ${{GITHUB_REF}}-${{GITHUB_SHA}}
+          IMAGE: gcr.io/test-tool-257606/build-app
+          URL: ${{GITHUB_REF}}-${{GITHUB_SHA}}-test2l.com
+        with:
+          args:
+            - helm init --service-account tiller --wait --upgrade
+            - helm upgrade
+              --install
+              --set web.name="app-${ID}"
+              --set web.image="${IMAGE}"
+              --set web.host="${URL}"
+              --wait
+              --force
+              app-${ID}
+              ./mychart
