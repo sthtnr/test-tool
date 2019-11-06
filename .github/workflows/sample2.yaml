@@ -18,6 +18,6 @@ jobs:
         with:
           args: |
             gcloud auth activate-service-account --project=${{secrets.GCLOUD_PROJECT_ID}} --key-file ${{secrets.GCLOUD_AUTH}}
-            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --project ${{secrets.GCLOUD_PROJECT_ID}} --zone ${{secrets.GCLOUD_ZONE}}
+            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}}
             helm init --service-account tiller --wait --upgrade
             helm upgrade --install --set web.name="app-${GITHUB_REF}-${GITHUB_SHA}" --set web.image="${IMAGE}" --set web.host="${GITHUB_REF}-${GITHUB_SHA}-test2l.com" --wait --force app-${GITHUB_REF}-${GITHUB_SHA} ./mychart
