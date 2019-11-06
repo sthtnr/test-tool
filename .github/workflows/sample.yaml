@@ -18,4 +18,4 @@ jobs:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
           args: helm init --service-account tiller --wait --upgrade && \
-                helm upgrade --install --set web.name="app-${{GITHUB_REF}}-${{GITHUB_SHA}}" --set web.image="${IMAGE}" --set web.host="${{GITHUB_REF}}-${{GITHUB_SHA}}-test2l.com" --wait --force app-${{GITHUB_REF}}-${{GITHUB_SHA}} ./mychart
+                helm upgrade --install --set web.name="app-${GITHUB_REF}-${{GITHUB_SHA}}" --set web.image="${IMAGE}" --set web.host="${GITHUB_REF}-${{GITHUB_SHA}}-test2l.com" --wait --force app-${GITHUB_REF}-${{GITHUB_SHA}} ./mychart
