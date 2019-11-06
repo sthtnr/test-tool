@@ -1,0 +1,22 @@
+name: CI2
+on:
+  push:
+    branches-ignore:
+      - 'test-githubactions'
+      - 'hoge'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker://devth/helm:latest
+        env:
+          IMAGE: gcr.io/test-tool-257606/build-app
+        with:
+          args:
+            gcloud auth activate-service-account --key-file ${{secrets.GCLOUD_AUTH}} --project=${{secrets.GCLOUD_PROJECT_ID}} && \
+            helm init --service-account tiller --wait --upgrade && \
+            helm upgrade --install --set web.name="app-${GITHUB_REF}-${GITHUB_SHA}" --set web.image="${IMAGE}" --set web.host="${GITHUB_REF}-${GITHUB_SHA}-test2l.com" --wait --force app-${GITHUB_REF}-${GITHUB_SHA} ./mychart
