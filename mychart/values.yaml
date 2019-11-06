@@ -1,9 +1,8 @@
 web:
-  name: hogehoge
+  host: hogehoge
   image: fugafuga
+  name: piyopiyo
 
-
-githubRepo: defaultRepo
 githubBranch: defaultBranch
 githubCommit: defaultCommit
-
+githubRepo: defaultRepo
