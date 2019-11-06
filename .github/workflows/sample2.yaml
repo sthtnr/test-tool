@@ -16,4 +16,10 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          args: mkdir -p /etc/deploy && echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json && gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} && gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} && helm init --service-account tiller --wait --upgrade && helm upgrade --install --set web.name="app-${GITHUB_REF}-${GITHUB_SHA}" --set web.image="${IMAGE}" --set web.host="${GITHUB_REF}-${GITHUB_SHA}-test2l.com" --wait --force app-${GITHUB_REF}-${GITHUB_SHA} ./mychart
+          args: |
+            mkdir -p /etc/deploy
+            echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}}
+            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}}
+            helm init --service-account tiller --wait --upgrade
+            helm upgrade --install --set web.name="app-${GITHUB_REF}-${GITHUB_SHA}" --set web.image="${IMAGE}" --set web.host="${GITHUB_REF}-${GITHUB_SHA}-test2l.com" --wait --force app-${GITHUB_REF}-${GITHUB_SHA} ./mychart
