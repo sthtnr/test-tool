@@ -13,7 +13,7 @@ jobs:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
           entrypoint: /bin/sh
-          args: |
+          args:
             - '-c'
             - |
               mkdir -p /etc/deploy && \
