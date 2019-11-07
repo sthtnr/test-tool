@@ -16,6 +16,7 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
+          entrypoint: /bin/sh
           args: |
             mkdir -p /etc/deploy
             echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json
