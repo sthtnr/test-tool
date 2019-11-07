@@ -1,16 +1,24 @@
-name: gcloud
+name: CI2
 on: [push]
 
 jobs:
-  deploy:
-    name: Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v1
-      - uses: actions-hub/gcloud@master
+      - uses: docker://devth/helm:latest
         env:
-          PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-          AUTH: ${{secrets.GCLOUD_AUTH}}
+          IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          args: info
+          entrypoint: /bin/sh
+          args:
+          - '-c'
+          - |
+            mkdir -p /etc/deploy && \
+            echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json && \
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} && \
+            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} && \
+            helm init --service-account tiller --wait --upgrade && \
+            helm upgrade --install --set web.name="app-$GITHUB_REF-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="$GITHUB_SHA-test2l.com" --wait --force app-$GITHUB_REF-$GITHUB_SHA ./mychart
