@@ -13,9 +13,8 @@ jobs:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
           entrypoint: /bin/sh
-          args:
-          - '-c'
-          - |
+          args: |
+            -c |
             mkdir -p /etc/deploy && \
             echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json && \
             gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} && \
