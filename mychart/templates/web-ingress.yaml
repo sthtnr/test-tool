@@ -9,6 +9,7 @@ spec:
     - host: {{ .Values.web.host }}
       http:
         paths:
-        - backend:
-          serviceName: {{ .Values.web.name }}
-          servicePort: http
+        - path: /
+          backend:
+            serviceName: {{ .Values.web.name }}
+            servicePort: http
