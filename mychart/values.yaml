@@ -2,7 +2,3 @@ web:
   host: hogehoge
   image: fugafuga
   name: piyopiyo
-
-githubBranch: defaultBranch
-githubCommit: defaultCommit
-githubRepo: defaultRepo
