@@ -12,5 +12,4 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          entrypoint: /bin/sh
-          args: -c 'echo hoge && ls && echo fuga'
+          args: /bin/sh -c 'echo hoge && ls && echo fuga'
