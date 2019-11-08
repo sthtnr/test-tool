@@ -12,4 +12,4 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          args: /bin/sh -c 'echo hoge'
+          args: /bin/sh -c "echo hoge"
