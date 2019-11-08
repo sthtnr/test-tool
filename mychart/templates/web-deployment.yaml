@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.githubRepo }}/{{ .Values.githubBranch }}/{{ .Values.githubCommit }}
+  name: {{ .Values.web.name }}
   labels:
     {{ template "mychart.chart" . }}
     app: {{ .Values.web.name }}
