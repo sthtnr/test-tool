@@ -12,8 +12,4 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          args: /bin/bash -c " \
-            echo hoge && \
-            ls && \
-            echo fuga \
-            "
+          args: /bin/bash -c "echo hoge && ls && echo fuga"
