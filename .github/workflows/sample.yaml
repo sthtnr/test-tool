@@ -12,7 +12,7 @@ jobs:
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
         with:
-          entrypoint: /bin/sh
+          entrypoint: /bin/bash
           args: -c " \
             echo hoge && \
             ls && \
