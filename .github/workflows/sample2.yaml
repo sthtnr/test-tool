@@ -15,11 +15,12 @@ jobs:
       - uses: docker://devth/helm:latest
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
+          GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
         with:
           entrypoint: /bin/bash
           args: -c "
             mkdir -p /etc/deploy &&
-            echo ${{secrets.GCLOUD_AUTH}} | base64 -d > /etc/deploy/sa.json &&
+            echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
             gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
             gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
             helm init --service-account tiller --wait --upgrade &&
