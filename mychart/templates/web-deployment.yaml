@@ -17,8 +17,10 @@ spec:
       labels:
         app: {{ .Values.web.name }}
     spec:
+      imagePullSecrets:
+        - name: gcr-json-key
       containers:
-      - name: {{ .Values.web.name }}
-        image: {{ .Values.web.image }}
-        ports:
-        - containerPort: 80
+        - name: {{ .Values.web.name }}
+          image: {{ .Values.web.image }}
+          ports:
+            - containerPort: 80
