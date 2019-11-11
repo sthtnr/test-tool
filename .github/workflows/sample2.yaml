@@ -20,7 +20,7 @@ jobs:
       - name: Deploy app
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/test-tool-257606/build-app
+          IMAGE: gcr.io/tmp-sato-san/build-app
           GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
         with:
           entrypoint: /bin/bash
