@@ -6,13 +6,19 @@ on:
       - 'hoge'
 
 jobs:
-  build:
-    name: Build
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v1
-      - uses: docker://devth/helm:latest
+
+      - name: Extract branch name
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Deploy app
+        uses: docker://devth/helm:latest
         env:
           IMAGE: gcr.io/test-tool-257606/build-app
           GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
@@ -24,5 +30,5 @@ jobs:
             gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
             gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
             helm init --service-account tiller --wait --upgrade &&
-            helm upgrade --install --set web.name="app-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="$GITHUB_SHA-test2l.com" --wait --force app-$GITHUB_SHA ./mychart
+            helm upgrade --install --set web.name="app-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}-test2l.com" --wait --force app-$GITHUB_SHA ./mychart
             "
