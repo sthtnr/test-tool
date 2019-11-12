@@ -17,9 +17,7 @@ jobs:
         id: extract_branch
 
       - name: Deploy app master
-        env:
-          BRANCH: ${{steps.extract_branch.outputs.branch}}
-        if: $BRANCH == 'master'
+        if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         with:
           entrypoint: /bin/bash
@@ -33,9 +31,7 @@ jobs:
             "
 
       - name: Deploy app except master
-        env:
-          BRANCH: ${{steps.extract_branch.outputs.branch}}
-        if: $BRANCH != 'master'
+        if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         with:
           entrypoint: /bin/bash
