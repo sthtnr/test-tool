@@ -18,11 +18,13 @@ jobs:
 
       - name: Register container image
         env:
-          IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-$GITHUB_SHA
+          IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-${{ github.sha }}
         run: |
           docker pull $IMAGE || true
-          docker build --cache-from $IMAGE -t $IMAGE -f ./my-app/Dockerfile
+          docker build --cache-from $IMAGE -t build-app -f ./my-app/Dockerfile
+          docker tag build-app $IMAGE
           docker push $IMAGE
+          docker image prune -a
 
       - name: Deploy app master
         if: steps.extract_branch.outputs.branch == 'master'
