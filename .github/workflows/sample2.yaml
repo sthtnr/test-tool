@@ -27,7 +27,7 @@ jobs:
             gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
             gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
             helm init --service-account tiller --wait --upgrade &&
-            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
+            helm upgrade --install --set web.name="app-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
 
       - name: Deploy app except master
@@ -41,5 +41,5 @@ jobs:
             gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
             gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
             helm init --service-account tiller --wait --upgrade &&
-            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}.test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
+            helm upgrade --install --set web.name="app-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}.test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
