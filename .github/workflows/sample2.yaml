@@ -18,8 +18,9 @@ jobs:
 
       - name: Register container image
         env:
-          IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-${{ github.sha }}
+          IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         run: |
+          gcloud auth activate-service-account ${{secrets.GCLOUD_ACCOUNT}}
           gcloud auth configure-docker
           docker pull $IMAGE || true
           docker build --cache-from $IMAGE -t build-app -f ./my-app/Dockerfile
