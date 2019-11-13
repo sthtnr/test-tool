@@ -5,7 +5,7 @@ jobs:
   deploy:
     name: Deploy
     env:
-      IMAGE: gcr.io/tmp-sato-san/build-app
+      IMAGE: gcr.io/tmp-sato-san/hogefugapiyo
       GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
     runs-on: ubuntu-latest
 
@@ -15,6 +15,14 @@ jobs:
       - name: Extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
+
+      - name: Register container image
+        env:
+          IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-$GITHUB_SHA
+        run: |
+          docker pull $IMAGE || true
+          docker build --cache-from $IMAGE -t $IMAGE -f ./my-app/Dockerfile
+          docker push $IMAGE
 
       - name: Deploy app master
         if: steps.extract_branch.outputs.branch == 'master'
