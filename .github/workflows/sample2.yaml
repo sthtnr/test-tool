@@ -16,10 +16,19 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
+      - name: Authenticate GCP
+        uses: docker://devth/helm:latest
+        with:
+          entrypoint: /bin/bash
+          args: -c "
+            gcloud auth configure-docker
+            "
+
       - name: Register container image
         env:
           IMAGE: gcr.io/tmp-sato-san/${{steps.extract_branch.outputs.branch}}-${{ github.sha }}
         run: |
+          gcloud auth configure-docker
           docker pull $IMAGE || true
           docker build --cache-from $IMAGE -t build-app -f ./my-app/Dockerfile
           docker tag build-app $IMAGE
