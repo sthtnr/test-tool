@@ -32,7 +32,6 @@ jobs:
 
       - name: Delete a certain branch app
         uses: docker://devth/helm:latest
-        env:
         with:
           entrypoint: /bin/bash
           args: -c "
