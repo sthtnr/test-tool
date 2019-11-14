@@ -1,0 +1,41 @@
+name: Clean up
+on: delete
+
+jobs:
+  delete:
+    name: Delete
+    env:
+      GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+      GCLOUD_CLUSTER_NAME: ${{secrets.GCLOUD_CLUSTER_NAME}}
+      GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+      GCLOUD_ZONE: ${{secrets.GCLOUD_ZONE}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Extract branch name
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Authentication for GCP
+        uses: docker://devth/helm:latest
+        with:
+          entrypoint: /bin/bash
+          args: -c "
+            mkdir -p /etc/deploy &&
+            echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
+            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
+            gcloud auth configure-docker
+            "
+
+      - name: Delete a certain branch app
+        uses: docker://devth/helm:latest
+        env:
+        with:
+          entrypoint: /bin/bash
+          args: -c "
+            helm init --service-account tiller --wait --upgrade &&
+            helm delete app-${{steps.extract_branch.outputs.branch}}
+            "
