@@ -51,7 +51,7 @@ jobs:
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
@@ -67,7 +67,7 @@ jobs:
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
