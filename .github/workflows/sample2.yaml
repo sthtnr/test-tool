@@ -37,15 +37,14 @@ jobs:
           docker tag build-app $IMAGE
 
       - name: Push image to GCR
-      uses: zemuldo/docker-build-push@master
-      env:
-        GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-        GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
-        REGISTRY_URL: "gcr.io"
-      with:
-        image_name: "$IMAGE"
-        image_tag: "latest"
-
+        uses: zemuldo/docker-build-push@master
+        env:
+          GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+          GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+          REGISTRY_URL: "gcr.io"
+        with:
+          image_name: "$IMAGE"
+          image_tag: "latest"
 
       - name: Deploy app master
         if: steps.extract_branch.outputs.branch == 'master'
