@@ -5,7 +5,7 @@ jobs:
   deploy:
     name: Deploy
     env:
-      IMAGE: gcr.io/tmp-sato-san/build-app
+      IMAGE: hogefugapiyo
       GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
     runs-on: ubuntu-latest
 
@@ -16,9 +16,42 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
+      - name: Authenticate GCP
+        uses: docker://devth/helm:latest
+        with:
+          entrypoint: /bin/bash
+          args: -c "
+            mkdir -p /etc/deploy &&
+            echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
+            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
+            gcloud auth configure-docker
+            "
+
+      - name: Build image
+        env:
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+        run: |
+          docker pull $IMAGE || true
+          docker build --cache-from $IMAGE -t build-app ./my-app/
+          docker tag build-app $IMAGE
+
+      - name: Push image to GCR
+        uses: zemuldo/docker-build-push@master
+        env:
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+          GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+          REGISTRY_URL: "gcr.io"
+        with:
+          image_name: "$IMAGE"
+          image_tag: "latest"
+
       - name: Deploy app master
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
+        env:
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
@@ -33,6 +66,8 @@ jobs:
       - name: Deploy app except master
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
+        env:
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
