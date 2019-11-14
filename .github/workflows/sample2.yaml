@@ -57,10 +57,6 @@ jobs:
         with:
           entrypoint: /bin/bash
           args: -c "
-            mkdir -p /etc/deploy &&
-            echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
-            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
-            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
             helm init --service-account tiller --wait --upgrade &&
             helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-${{github.sha}}" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
@@ -73,10 +69,6 @@ jobs:
         with:
           entrypoint: /bin/bash
           args: -c "
-            mkdir -p /etc/deploy &&
-            echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
-            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
-            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
             helm init --service-account tiller --wait --upgrade &&
             helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-${{github.sha}}" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}.test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
