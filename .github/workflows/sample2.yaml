@@ -30,7 +30,7 @@ jobs:
 
       - name: Build image
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         run: |
           docker pull $IMAGE || true
           docker build --cache-from $IMAGE -t build-app ./my-app/
@@ -39,7 +39,7 @@ jobs:
       - name: Push image to GCR
         uses: zemuldo/docker-build-push@master
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
           GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
           GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
           REGISTRY_URL: "gcr.io"
@@ -51,7 +51,7 @@ jobs:
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
@@ -67,7 +67,7 @@ jobs:
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
