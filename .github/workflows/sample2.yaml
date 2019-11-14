@@ -18,7 +18,7 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
-      - name: Authenticate GCP
+      - name: Authentication for GCP
         uses: docker://devth/helm:latest
         with:
           entrypoint: /bin/bash
@@ -49,7 +49,7 @@ jobs:
           image_name: "$IMAGE"
           image_tag: "latest"
 
-      - name: Deploy app master
+      - name: Deploy master branch app
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         env:
@@ -61,7 +61,7 @@ jobs:
             helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-${{github.sha}}" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
 
-      - name: Deploy app except master
+      - name: Deploy non-master branch app
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         env:
