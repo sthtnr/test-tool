@@ -1,5 +1,8 @@
 name: Clean up
-on: delete
+on:
+  delete:
+    branches-ignore:
+      - "ignore-**"
 
 jobs:
   delete:
