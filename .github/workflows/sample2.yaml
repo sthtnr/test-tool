@@ -5,8 +5,10 @@ jobs:
   deploy:
     name: Deploy
     env:
-      IMAGE: hogefugapiyo
       GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+      GCLOUD_CLUSTER_NAME: ${{secrets.GCLOUD_CLUSTER_NAME}}
+      GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+      GCLOUD_ZONE: ${{secrets.GCLOUD_ZONE}}
     runs-on: ubuntu-latest
 
     steps:
@@ -23,8 +25,8 @@ jobs:
           args: -c "
             mkdir -p /etc/deploy &&
             echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
-            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
-            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
+            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
             gcloud auth configure-docker
             "
 
@@ -40,8 +42,8 @@ jobs:
         uses: zemuldo/docker-build-push@master
         env:
           IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
-          GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-          GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+          GCLOUD_PROJECT_ID: $GCLOUD_PROJECT_ID
+          GCLOUD_AUTH: $GCLOUD_AUTH
           REGISTRY_URL: "gcr.io"
         with:
           image_name: "$IMAGE"
@@ -51,30 +53,30 @@ jobs:
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/$GCLOUD_PROJECT_ID/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
             mkdir -p /etc/deploy &&
             echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
-            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
-            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
+            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
             helm init --service-account tiller --wait --upgrade &&
-            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
+            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-${{github.sha}}" --set web.image="$IMAGE" --set web.host="test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
 
       - name: Deploy app except master
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/$GCLOUD_PROJECT_ID/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
             mkdir -p /etc/deploy &&
             echo $GCLOUD_AUTH | base64 -d > /etc/deploy/sa.json &&
-            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=${{secrets.GCLOUD_PROJECT_ID}} &&
-            gcloud container clusters get-credentials ${{secrets.GCLOUD_CLUSTER_NAME}} --zone ${{secrets.GCLOUD_ZONE}} --project ${{secrets.GCLOUD_PROJECT_ID}} &&
+            gcloud auth activate-service-account --key-file=/etc/deploy/sa.json --project=$GCLOUD_PROJECT_ID &&
+            gcloud container clusters get-credentials $GCLOUD_CLUSTER_NAME --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT_ID &&
             helm init --service-account tiller --wait --upgrade &&
-            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-$GITHUB_SHA" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}.test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
+            helm upgrade --install --set web.name="app-${{steps.extract_branch.outputs.branch}}-${{github.sha}}" --set web.image="$IMAGE" --set web.host="${{steps.extract_branch.outputs.branch}}.test2l.com" --wait --force app-${{steps.extract_branch.outputs.branch}} ./mychart
             "
