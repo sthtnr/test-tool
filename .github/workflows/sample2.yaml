@@ -28,15 +28,24 @@ jobs:
             gcloud auth configure-docker
             "
 
-      - name: Register container image
+      - name: Build image
         env:
           IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         run: |
           docker pull $IMAGE || true
           docker build --cache-from $IMAGE -t build-app ./my-app/
           docker tag build-app $IMAGE
-          docker push $IMAGE
-          docker image prune -a
+
+      - name: Push image to GCR
+      uses: zemuldo/docker-build-push@master
+      env:
+        GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+        GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
+        REGISTRY_URL: "gcr.io"
+      with:
+        image_name: "$IMAGE"
+        image_tag: "latest"
+
 
       - name: Deploy app master
         if: steps.extract_branch.outputs.branch == 'master'
