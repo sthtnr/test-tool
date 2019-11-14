@@ -43,7 +43,7 @@ jobs:
         env:
           IMAGE: ${{steps.extract_branch.outputs.branch}}-${{github.sha}}
           GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-          GCLOUD_AUTH: $GCLOUD_AUTH
+          GCLOUD_AUTH: ${{secrets.GCLOUD_AUTH}}
           REGISTRY_URL: "gcr.io"
         with:
           image_name: "$IMAGE"
@@ -53,7 +53,7 @@ jobs:
         if: steps.extract_branch.outputs.branch == 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/$GCLOUD_PROJECT_ID/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
@@ -65,7 +65,7 @@ jobs:
         if: steps.extract_branch.outputs.branch != 'master'
         uses: docker://devth/helm:latest
         env:
-          IMAGE: gcr.io/$GCLOUD_PROJECT_ID/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
+          IMAGE: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/${{steps.extract_branch.outputs.branch}}-${{github.sha}}
         with:
           entrypoint: /bin/bash
           args: -c "
